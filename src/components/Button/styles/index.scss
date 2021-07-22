@@ -18,21 +18,17 @@
   &[disabled] {
     cursor: not-allowed;
   }
-
   &:hover {
     opacity: 0.9;
   }
-
   &:active {
     opacity: 1;
   }
-
   &.button--white {
     background: #fff;
     border-color: #fff;
     color: #3369f3;
   }
-
   &.button--block {
     display: block;
     width: 100%;

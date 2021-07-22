@@ -1,6 +1,10 @@
-form.form-auth&attributes(data.attributes)
+form.form-auth(autocomplete="off")&attributes(data.attributes)
 	.form-auth__head
 		.form-auth__title #{data.title}
 	.form-auth__body
-		fieldset
-	.form-auth__footer
+		fieldset(data-ref="fieldset")
+		if (data.errors)
+			ul.form-auth__errors
+				each error in data.errors
+					li.form-auth__error #{error}
+	.form-auth__footer(data-ref="footer")

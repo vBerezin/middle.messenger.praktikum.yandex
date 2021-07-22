@@ -8,11 +8,7 @@ export class PopupFile extends Popup<PopupFileProps> {
 
   constructor(props: PopupFileProps) {
     super(props);
-    this.form = new FormFile(props.form);
-    this.form.on('submit', () => {
-      this.emit('submit', { state: this.form.getState() });
-      this.hide();
-    });
+    this.form = new FormFile(this.props.form);
   }
 
   reset() {
@@ -20,9 +16,7 @@ export class PopupFile extends Popup<PopupFileProps> {
     return this;
   }
 
-  render() {
-    const formContainer = this.el.querySelector('.popup__body');
-    this.form.mount(formContainer);
-    return this;
+  mounted() {
+    this.form.mount(this.refs.body);
   }
 }

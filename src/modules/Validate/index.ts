@@ -1,47 +1,33 @@
 type Value = string | number;
 
 const validateValue: {
-  [ key: string ]: (value: Value, options?) => boolean
+  [key: string]: (value: Value, options?) => boolean
 } = {
-  isEmpty: (value) => {
-    return String(value).trim().length === 0;
-  },
+  isEmpty: (value) => String(value).trim().length === 0,
   lengthMinMax(value, { min = 0, max = Infinity }) {
-    const length = String(value).trim().length;
+    const { length } = String(value).trim();
     return length >= min && length <= max;
   },
-  hasLowerCase: (value) => {
-    return /[a-z]/g.test(String(value));
-  },
-  hasUpperCase: (value) => {
-    return /[A-Z]/g.test(String(value));
-  },
-  hasNumbers: (value) => {
-    return /[0-9]/g.test(String(value));
-  },
-  isCyrilic: (value) => {
-    return /[a-zA-Z]/g.test(String(value));
-  },
+  hasLowerCase: (value) => /[a-z]/g.test(String(value)),
+  hasUpperCase: (value) => /[A-Z]/g.test(String(value)),
+  hasNumbers: (value) => /[0-9]/g.test(String(value)),
+  isCyrilic: (value) => /[a-zA-Z]/g.test(String(value)),
   phone: (value) => {
     const val = String(value).replace(/[-,()\s]/g, '');
     const regExp = new RegExp(/^(8|\+7)9\d{9}$/g);
     return regExp.test(val);
   },
   email: (value) => {
-    const regExp = new RegExp(/^\w+@\w+\.\w+/g);
+    const regExp = new RegExp(/^\w+\W*\w+@\w+\.\w+/g);
     return regExp.test(String(value));
-  }
+  },
 };
 
 const validateField: {
-  [ key: string ]: (value: Value) => string | string[] | null
+  [key: string]: (value: Value) => string | string[] | null
 } = {
-  required: (value) => {
-    return validateValue.isEmpty(value) ? 'Обязательное поле' : null;
-  },
-  login: (value) => {
-    return validateValue.isCyrilic(value) ? null : 'Логин должен содержать только латинские буквы';
-  },
+  required: (value, message = 'Обязательное поле') => (validateValue.isEmpty(value) ? message : null),
+  login: (value) => (validateValue.isCyrilic(value) ? null : 'Логин должен содержать только латинские буквы'),
   password: (value) => {
     const errors = [];
     const empty = validateValue.isEmpty(value);
@@ -69,12 +55,8 @@ const validateField: {
     }
     return errors.length ? errors : null;
   },
-  phone: (value) => {
-    return validateValue.phone(value) ? null : 'Введите телефон';
-  },
-  email: (value) => {
-    return validateValue.email(value) ? null : 'Введите e-mail';
-  }
+  phone: (value) => (validateValue.phone(value) ? null : 'Введите телефон'),
+  email: (value) => (validateValue.email(value) ? null : 'Введите e-mail'),
 };
 
 export const Validate = { value: validateValue, field: validateField };

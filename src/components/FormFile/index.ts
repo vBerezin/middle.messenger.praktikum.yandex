@@ -1,14 +1,15 @@
 import './styles';
 import template from './template';
 import { FormFileState, FormFileProps } from './types';
-
-import { formSubmitHandler } from '~common/scripts/utils/formSubmitHandler';
+import { FormFileEvents } from './events';
 
 import { Component } from '~modules/Component';
 
 import { Button } from '~components/Button';
 
-export class FormFile extends Component<FormFileProps, FormFileState> {
+export class FormFile extends Component<FormFileProps, FormFileState, FormFileEvents> {
+  static events = FormFileEvents;
+
   private button: Button;
 
   constructor(props: FormFileProps) {
@@ -17,7 +18,7 @@ export class FormFile extends Component<FormFileProps, FormFileState> {
       mods: ['blue', 'block'],
       class: 'form-file__submit',
       attributes: {
-        type: 'submit'
+        type: 'submit',
       },
       text: 'Отправить',
       ...props.button,
@@ -32,25 +33,24 @@ export class FormFile extends Component<FormFileProps, FormFileState> {
     return this;
   }
 
-  render() {
-    const input = this.el.querySelector('[type="file"]');
-    if (this.state.value) {
-      const footer = this.el.querySelector('.form-file__footer');
-      this.button.mount(footer);
-    }
+  created() {
+    const { input } = this.refs;
     this.el.addEventListener('change', () => {
-      const file = input.files[ 0 ];
+      const file = input.files[0];
       this.setState({
         value: {
           file,
-          name: file.name
+          name: file.name,
         },
       });
-      this.emit('change', this.state);
+      this.emit(FormFile.events.change, this.state);
     });
-    this.el.addEventListener('submit', (event) => {
-      this.emit('submit', event);
-      return formSubmitHandler(event);
-    });
+    this.el.addEventListener('submit', (event) => this.props.submit.call(this, event, this.state));
+  }
+
+  updated() {
+    if (this.state.value) {
+      this.button.mount(this.refs.footer);
+    }
   }
 }

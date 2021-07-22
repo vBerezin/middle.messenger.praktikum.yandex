@@ -1,49 +1,100 @@
-import { EventEmitter } from 'events';
+import { RouterEvents } from './types';
+import { Events } from '~modules/Events';
 import { documentReady } from '~common/scripts/utils/documentReady';
-import { EVENTS } from '~common/scripts/events';
 
-export class Router {
-  on;
-  off;
-  emit;
-  private emitter: EventEmitter;
-  private currentRoute: string;
+class AppRouter extends Events<RouterEvents> {
+  events = RouterEvents;
+
+  currentRoute: string;
+
   readonly routes: Map<string, Function>;
 
+  private readonly history: History;
+
+  private readonly location: Location;
+
   constructor() {
-    this.emitter = new EventEmitter();
+    super();
+    this.location = window.location;
+    this.history = window.history;
     this.routes = new Map();
     this.currentRoute = '';
-    this.on = this.emitter.on;
-    this.off = this.emitter.off;
-    this.emit = this.emitter.emit;
+  }
+
+  start() {
+    window.onpopstate = () => this.init();
     documentReady(() => this.init());
-    window.addEventListener('hashchange', () => this.init());
+    this.emit(this.events.start);
   }
 
-  private init(): void | false {
-    const { location: { pathname, hash } } = window;
-    const path = `${pathname}${hash}`;
-    if (this.currentRoute === path) {
-      return false;
+  get url(): string {
+    const { pathname, hash } = this.location;
+    return `${pathname}${hash}`;
+  }
+
+  private init(route: string = this.url, data?, state?) {
+    if (this.currentRoute === route) {
+      return this;
     }
-    const callback = this.routes.get(path);
-    if (typeof callback === 'function') {
-      this.currentRoute = path;
-      return callback();
+    const onRoute = this.routes.get(route);
+    if (onRoute) {
+      try {
+        this.currentRoute = route;
+        if (state) {
+          this.history.pushState(state, '', route);
+        }
+        return onRoute(data);
+      } catch (error) {
+        this.emit(RouterEvents.error, { error, route });
+        return this;
+      }
     }
-    this.emit(EVENTS.router.error, path);
+    this.emit(RouterEvents.error, {
+      route,
+      error: new Error('Not found'),
+    });
+    return this;
   }
 
-  add(routes: string | string[], onRoute: Function): void {
-    [].concat(routes).forEach((route) => this.routes.set(route, onRoute));
+  go(route: string, data?): this {
+    const state = {
+      prev: this.url,
+      data: data ? JSON.stringify(data) : '',
+    };
+    return this.init(route, data, state);
   }
 
-  remove(route: string): void {
+  use(routes: string | string[], onRoute: Function): this {
+    [].concat(routes).forEach((route) => {
+      if (this.routes.has(route)) {
+        throw new Error(`Route ${route} already use`);
+      }
+      this.routes.set(route, onRoute);
+    });
+    return this;
+  }
+
+  remove(route: string): this {
     this.routes.delete(route);
+    return this;
   }
 
-  redirect(route: string): void {
-    window.location.href = route;
+  back(): this {
+    this.history.back();
+    return this;
+  }
+
+  forward(): this {
+    this.history.forward();
+    return this;
+  }
+
+  catch(callback): this {
+    this.on(RouterEvents.error, callback);
+    return this;
   }
 }
+
+const Router = new AppRouter();
+
+export { Router };

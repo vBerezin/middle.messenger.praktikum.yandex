@@ -1,7 +1,8 @@
 .profile
 	aside.profile__aside
-		a.profile__back(href=data.back title="Назад к чатам")
+		button.profile__back(data-click="click:back")
 			.profile__back-icon
 				img(src="/images/icons/back.svg")
 	main.profile__main
-		.profile__form
+		.profile__head(data-ref="head")
+		.profile__body(data-ref="body")

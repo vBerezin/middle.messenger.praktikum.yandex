@@ -1,0 +1,10 @@
+.profile-info
+	.profile-info__body
+		each field in data.fields
+			.profile-info__field
+				.profile-info__field-label #{field.label}
+				.profile-info__field-value #{field.value}
+	.profile-info__footer
+		a.profile-info__button(href=ROUTES.user.edit) Изменить данные
+		a.profile-info__button(href=ROUTES.user.password) Изменить пароль
+		a.profile-info__signout(href=ROUTES.auth.signout) Выйти

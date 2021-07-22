@@ -23,7 +23,7 @@ export class Request {
       xhr.open(method, url);
       if (headers) {
         for (const name in headers) {
-          xhr.setRequestHeader(name, headers[ name ]);
+          xhr.setRequestHeader(name, headers[name]);
         }
       }
       xhr.onload = () => {

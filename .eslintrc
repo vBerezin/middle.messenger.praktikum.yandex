@@ -1,45 +1,64 @@
 {
   "extends": [
-    "airbnb-base",
-    "plugin:import/errors",
-    "plugin:import/warnings",
-    "plugin:promise/recommended"
+    "airbnb-typescript/base"
   ],
   "plugins": [
-    "optimize-regex",
-    "no-use-extend-native",
-    "promise",
-    "babel",
     "@typescript-eslint"
   ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
   "rules": {
-    "no-underscore-dangle": ["error", {
-      "allowAfterThis": true
-    }],
-    "object-curly-spacing": ["error", "always"],
-    "import/extensions": 0,
-    "curly": ["error", "all"],
-    "max-params": 2,
-    "func-names": ["error", "never"],
-    "no-console": ["error", { "allow": ["warn", "error", "info"] }],
-    "import/prefer-default-export": 0,
-    "import/no-extraneous-dependencies": [
+    "no-underscore-dangle": [
       "error",
       {
-        "packageDir": "./"
+        "allowAfterThis": true
       }
     ],
-    "lines-between-class-members": 1,
-    "allowTernary": 1,
-    "allowShortCircuit": 1,
-    "no-use-extend-native/no-use-extend-native": 2,
-    "import/no-unresolved": "off"
+    "object-curly-spacing": [
+      "error",
+      "always"
+    ],
+    "curly": [
+      "error",
+      "all"
+    ],
+    "no-unused-expressions": "off",
+    "@typescript-eslint/no-unused-expressions": "off",
+    "template-curly-spacing": "error",
+    "import/prefer-default-export": "off",
+    "no-param-reassign": "off",
+    "consistent-return": "off",
+    "class-methods-use-this": "off",
+    "import/extensions": "off",
+    "func-names": "off",
+    "no-console": ["error", {
+      "allow": ["info", "warn", "error"]
+    }],
+    "lines-between-class-members": [
+      "error",
+      "always",
+      {
+        "exceptAfterSingleLine": true
+      }
+    ],
+    "no-use-before-define": [
+      "error",
+      {
+        "functions": true,
+        "classes": false
+      }
+    ],
+    "padded-blocks": [
+      "error",
+      {
+        "blocks": "never"
+      }
+    ]
   },
   "env": {
     "browser": true,
     "node": true
-  },
-  "settings": {
-    "import/resolver": "parcel"
   }
 }

@@ -1,39 +1,53 @@
 import './styles';
 import template from './template';
-import { MessengerProps } from './types';
 
 import { Component } from '~modules/Component';
-import { ComponentProps } from '~modules/Component/types';
 
 import { ChatList } from '~components/ChatList';
-import { FormSearch } from '~components/FormSearch';
 import { Dialog } from '~components/Dialog';
+import { FormSearch } from '~components/FormSearch';
+import { MessengerState } from '~components/Messenger/types';
+import { UserProfile } from '~entities/UserProfile';
 
-export class Messenger extends Component<MessengerProps> {
-  private search: FormSearch;
-  private dialog: Dialog;
-  private chats: ChatList;
+export class Messenger extends Component<null, MessengerState> {
+  private readonly search = new FormSearch();
 
-  constructor(props?: MessengerProps & ComponentProps) {
-    super({ template, props });
-    this.search = new FormSearch();
-    this.dialog = new Dialog();
-    this.chats = new ChatList();
+  private readonly list = new ChatList();
+
+  private readonly profile = new UserProfile();
+
+  private dialogs: Record<number, Dialog> = {};
+
+  constructor() {
+    super({ template });
+    this.search.on(this.search.events.search, (value) => {
+      this.list.search(value);
+    });
+    this.list.on(this.list.events.chatSelected, async (chatData) => {
+      const userData = await this.profile.getData();
+      const chatId = chatData.id;
+      const userId = userData.id;
+      this.search.reset();
+      if (!this.dialogs[chatId]) {
+        this.dialogs[chatId] = new Dialog({
+          chat: chatData,
+          user: {
+            id: userId,
+          },
+        });
+      }
+      const dialog = this.dialogs[chatId];
+      dialog.on(dialog.events.chatDelete, (id) => {
+        this.setState({ active: null });
+        delete this.dialogs[id];
+      });
+      this.setState({ active: chatId });
+      dialog.mount(this.refs.main);
+    });
   }
 
-  setChats(chats) {
-    this.chats.setState({ chats });
-    return this;
-  }
-
-  openChat(chat) {
-    this.dialog.setState(chat);
-    return this;
-  }
-
-  render() {
-    this.search.mount(this.el.querySelector('.messenger__search'));
-    this.chats.mount(this.el.querySelector('.messenger__list'));
-    this.dialog.mount(this.el.querySelector('main'));
+  mounted() {
+    this.search.mount(this.refs.search);
+    this.list.mount(this.refs.list);
   }
 }

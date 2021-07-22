@@ -1,37 +1,28 @@
-import { EventEmitter } from 'events';
-import { Breakpoints } from '~components/Breakpoints';
 import { ComponentInterface } from '~modules/Component/types';
+import { AppEvents } from './types';
+import { Events } from '~modules/Events';
 
-const el = document.querySelector('#app');
-const emitter = new EventEmitter();
-const debug = console.log;
-let current = null;
-const breakpoints = new Breakpoints({
-  xxs: 0,
-  xs: 475,
-  sm: 768,
-  md: 1024,
-  lg: 1200,
-  xl: 1366,
-  xxl: 1440,
-});
-breakpoints.change((point: string) => debug(`breakpoint: ${point}`));
+class Application extends Events<AppEvents> {
+  events = AppEvents;
 
-export const App = {
-  debug,
-  breakpoints,
-  user: undefined,
-  on: emitter.on,
-  off: emitter.off,
-  emit: emitter.emit,
-  init(component: ComponentInterface): void {
-    if (current) {
-      current.unmount();
+  private current: ComponentInterface | null = null;
+
+  private readonly el = window.document.querySelector('#app');
+
+  init(component: ComponentInterface, title = ''): void {
+    if (this.current) {
+      this.current.unmount();
     }
-    if (el) {
-      el.textContent = '';
-      component.mount(el);
-      current = component;
-    }
-  },
-};
+    this.el.textContent = '';
+    component.mount(this.el);
+    this.current = component;
+    document.title = title;
+    this.emit(AppEvents.init, component);
+  }
+
+  error(error, data?) {
+    this.emit(AppEvents.error, { error, ...data });
+  }
+}
+
+export const App = new Application();

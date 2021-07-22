@@ -1,3 +1,3 @@
-export function isObject(value: any): boolean {
-  return value instanceof Object && typeof value === 'object';
+export function isObject(object: Object): boolean {
+  return object !== null && object !== undefined && object.constructor === Object;
 }

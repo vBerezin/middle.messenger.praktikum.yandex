@@ -1,64 +1,98 @@
 import './styles';
 import template from './template';
-import { DialogProps, DialogState } from './types';
+import { DialogEvents, DialogProps, DialogState } from './types';
 
-import { EVENTS } from '~common/scripts/events';
-import { formSubmitHandler } from '~common/scripts/utils/formSubmitHandler';
-
-import { Component } from '~modules/Component';
-import { ComponentProps } from '~modules/Component/types';
 import { App } from '~modules/App';
-import { Validate } from '~modules/Validate';
-
+import { Component } from '~modules/Component';
+import { Chats } from '~entities/Chats';
+import { Messages } from '~entities/Messages';
 import { Message } from '~components/Message';
 
-export class Dialog extends Component<DialogProps, DialogState> {
-  constructor(props?: DialogProps & ComponentProps) {
-    super({ template, props });
-    this.on(EVENTS.component.update, () => this.mountMessages());
-    this.mountMessages();
+export class Dialog extends Component<DialogProps, DialogState, DialogEvents> {
+  events = DialogEvents;
+
+  private readonly chats = new Chats();
+
+  private readonly messages: Messages;
+
+  constructor(props: DialogProps) {
+    super({
+      template,
+      props,
+    });
+    this.messages = new Messages({
+      user: {
+        id: props.user.id,
+      },
+      chat: {
+        id: this.props.chat.id,
+      },
+    });
+    this.messages.on(this.messages.events.received, (data) => {
+      [].concat(data).forEach(this.createMessage.bind(this));
+    });
+    this.messages.getMessages();
   }
 
-  mountMessages() {
-    if (!this.state.messages) {
+  private createMessage(data) {
+    const isReply = data.user_id === this.props.user.id;
+    const message = new Message({
+      text: data.content,
+      date: data.time,
+      mods: isReply ? 'blue' : '',
+      class: isReply ? 'dialog__reply' : 'dialog__message',
+    });
+    message.mount(this.refs.messages);
+  }
+
+  private async submit(event) {
+    event.preventDefault();
+    const form = event.target;
+    const input = form.message;
+    const value = input.value.trim();
+    if (!value) {
+      input.value = value;
+      return input.focus();
+    }
+    await this.messages.sendMessage(value);
+    input.value = '';
+    return input.focus();
+  }
+
+  mounted() {
+    if (this.refs.input) {
+      this.refs.input.focus();
+    }
+    this.el.classList.remove('--actions-active');
+  }
+
+  created() {
+    this.el.addEventListener('click', () => {
+      this.el.classList.remove('--actions-active');
+    });
+    this.el.addEventListener('submit', this.submit.bind(this));
+  }
+
+  private 'click:actions'(event) {
+    event.stopPropagation();
+    this.el.classList.toggle('--actions-active');
+  }
+
+  private 'click:delete'(event) {
+    event.stopPropagation();
+    const { id } = this.state.chat;
+    if (!id) {
       return false;
     }
-    const container = this.el.querySelector('.dialog__messages');
-    const messages = this.state.messages.map((props) => {
-      return new Message({
-        ...props,
-        mods: props.image ? 'image' : 'text',
-        class: props.reply ? 'dialog__reply' : 'dialog__message',
+    this.chats
+      .deleteChat({ id })
+      .then(() => {
+        this.setState({
+          chat: null,
+        });
+        this.messages.disconnect();
+        this.emit(DialogEvents.chatDelete, { id });
       })
-    });
-    messages.forEach(message => message.mount(container));
-  }
-
-  render() {
-    const input = this.el.querySelector('.dialog__form-input');
-    if (input) {
-      input.focus();
-    }
-    this.el.addEventListener('submit', (event) => {
-      const { message } = event.target;
-      const date = new Date();
-      const empty = Validate.value.isEmpty(message.value);
-      if (empty) {
-        event.preventDefault();
-        return false;
-      }
-      this.setState({
-        messages: [
-          ...this.state.messages,
-          {
-            reply: true,
-            text: message.value,
-            date: `${date.getHours()}:${date.getSeconds()}`,
-          }
-        ]
-      });
-      App.emit(EVENTS.app.messenger.message.send, event);
-      return formSubmitHandler(event);
-    });
+      .catch(App.error);
   }
 }

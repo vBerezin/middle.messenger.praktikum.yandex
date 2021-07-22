@@ -2,72 +2,30 @@ import './styles';
 import template from './template';
 import { ProfileProps, ProfileState } from './types';
 
-import { ROUTES } from '~common/scripts/routes';
-
 import { Component } from '~modules/Component';
-import { ComponentProps } from '~modules/Component/types';
-import { App } from '~modules/App';
-
-import { Users } from '~entities/Users';
-import { UsersUser } from '~entities/Users/types';
-
-import { FormUser } from '~components/FormUser';
+import { FormAvatar } from '~components/FormAvatar';
+import { Router } from '~modules/Router';
 
 export class Profile extends Component<ProfileProps, ProfileState> {
-  private form: FormUser;
-  private getData: Promise<UsersUser | void>;
+  private formAvatar: FormAvatar;
 
-  constructor(props: ProfileProps & ComponentProps) {
+  constructor(props: ProfileProps) {
     super({
       template,
       props,
       state: {
-        user: props.user,
+        form: props.form,
       },
     });
-    this.getData = Users
-      .getUser(this.props.user.id)
-      .then((data) => {
-        this.form = new FormUser({ data });
-      })
-      .catch(App.debug);
+    this.formAvatar = new FormAvatar();
   }
 
-  info() {
-    this.getData
-      .then(() => {
-        this.setState({
-          back: ROUTES.messenger,
-        });
-        return this.form.info();
-      });
-    return this;
+  'click:back'() {
+    Router.back();
   }
 
-  edit() {
-    this.getData
-      .then(() => {
-        this.setState({
-          back: ROUTES.user.profile,
-        });
-        return this.form.edit();
-      });
-    return this;
-  }
-
-  password() {
-    this.getData
-      .then(() => {
-        this.setState({
-          back: ROUTES.user.profile,
-        });
-        return this.form.password();
-      });
-    return this;
-  }
-
-  render() {
-    const formContainer = this.el.querySelector('.profile__form');
-    this.getData.then(() => this.form.mount(formContainer));
+  mounted() {
+    this.formAvatar.mount(this.refs.head);
+    this.state.form.mount(this.refs.body);
   }
 }

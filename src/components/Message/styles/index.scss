@@ -1,49 +1,14 @@
 @import "./src/common/styles/variables/fonts";
 
 .message {
-  display: block;
+  color: #1e1e1e;
+  background: #F8F8F8;
+  padding: 10px;
+  border-radius: 10px;
   font-size: 12px;
   line-height: 15px;
-  font-weight: $font-weight-medium;
-  padding: 10px;
-  border-radius: 0 8px 8px 8px;
-  background: #f8f8f8;
 
-  &__date {
-    font-size: 0.8em;
-    color: #999;
-  }
-
-  &__text {
-    display: inline;
-  }
-
-  &__info {
-    display: inline-flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    float: right;
-    margin-left: 10px;
-    min-height: 15px;
-  }
-
-  &.message--reply {
-    border-radius: 8px 8px 0 8px;
-    background: #e4edfd;
-
-    .message__date {
-      color: #3369f3;
-    }
-  }
-
-  &.message--image {
-    background: none;
-
-    .message__date {
-      color: #fff;
-      padding: 0.2em 0.5em;
-      border-radius: 1em;
-      background: rgba(#525252, 0.5);
-    }
+  &.message--blue {
+    background: #E4EDFD;
   }
 }

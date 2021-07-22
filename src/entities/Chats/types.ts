@@ -1,7 +1,5 @@
-export type ChatsChat = {
-  id: string | number,
-  user: string | number,
-  date: string | Date,
-  count: string | number | undefined,
-  message: string
+export enum ChatsEvents {
+  update = 'chats:update',
+  create = 'chats:create',
+  delete = 'chats:delete',
 }
