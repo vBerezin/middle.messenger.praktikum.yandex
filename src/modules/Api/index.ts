@@ -1,17 +1,8 @@
-import { App } from '~modules/App';
-import { HTTPRequest } from '~modules/HTTPRequest';
+import { AuthApi } from './AuthApi';
+import { UsersApi } from './UsersApi';
+import { ChatsApi } from './ChatsApi';
+import { MessagesApi } from './MessagesApi';
 
-/**
- * Api - Обертка для работы с ручками
- * */
-
-export const Api = {
-  async getData<TResponse>(path: string): Promise<TResponse> {
-    try {
-      const request = await HTTPRequest.get(`/api${path}/index.json`);
-      return JSON.parse(request.response);
-    } catch (error) {
-      App.debug(error);
-    }
-  },
+export {
+  AuthApi, UsersApi, ChatsApi, MessagesApi,
 };

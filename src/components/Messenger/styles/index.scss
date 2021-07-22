@@ -15,29 +15,24 @@
     max-width: 310px;
     border-right: 1px solid #eaeaea;
   }
-
   &__aside-head {
     padding: 15px 10px;
     flex: 0 0 auto;
     border-bottom: 1px solid #eaeaea;
   }
-
   &__aside-body {
     flex: 0 1 auto;
     overflow: auto;
     overflow-scrolling: touch;
     -webkit-overflow-scrolling: touch;
   }
-
   &__main {
     flex: 1 1 auto;
   }
-
   &__user {
     text-align: right;
     margin-bottom: 15px;
   }
-
   &__user-link {
     display: inline-block;
     padding-right: 15px;
@@ -50,5 +45,14 @@
     &:hover {
       color: #3369f3;
     }
+  }
+  &__empty {
+    flex: 1 1 auto;
+    text-align: center;
+    align-self: center;
+    padding: 20px;
+  }
+  &__empty-title {
+    color: #999;
   }
 }

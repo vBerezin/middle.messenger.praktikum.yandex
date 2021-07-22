@@ -1,4 +1,5 @@
 import { ROUTES } from '~common/scripts/routes';
+import { TemplatorCompiler, TemplatorProps } from '~modules/Templator/types';
 
 /**
  * @param { Function } compiler - parcel при импорте .pug файла возвращает функцию pug.compile
@@ -7,16 +8,17 @@ import { ROUTES } from '~common/scripts/routes';
  * */
 
 export class Templator {
-  data;
-  compiler;
+  data: Record<string, any>;
 
-  constructor({ compiler, data = {} }: { compiler: Function, data?: {} }) {
-    this.data = data;
-    this.compiler = compiler;
+  compiler: TemplatorCompiler;
+
+  constructor(props: TemplatorProps) {
+    this.data = props.data;
+    this.compiler = props.compiler;
   }
 
   compile() {
-    const template = document.createElement('template');
+    const template = window.document.createElement('template');
     template.innerHTML = this.compiler({
       ROUTES,
       data: this.data,
@@ -25,6 +27,6 @@ export class Templator {
     if (children.length > 1) {
       throw new Error('Шаблон должен иметь 1 родительский элемент');
     }
-    return template.content.children[ 0 ];
+    return template.content.children[0];
   }
 }

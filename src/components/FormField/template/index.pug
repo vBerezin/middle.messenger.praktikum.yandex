@@ -1,11 +1,19 @@
+include ../../../common/templates/functions/mods
+
 -
-	className = [data.class]
-	if (data.value) className.push('is-active')
-	if (!data.readonly && data.required) className.push('is-required')
-.form-field(class=className)
+	state = []
+	if (data.value) state.push('is-active')
+	if (data.errors) state.push('is-error')
+	if (!data.readonly && data.required) state.push('is-required')
+.form-field(
+	class=state
+	class=data.class
+	class=mods('form-field', data.mods))
 	.form-field__body
-		label.form-field__label(for=data.id) #{data.label}
+		if (data.label)
+			label.form-field__label(for=data.id) #{data.label}
 		input.form-field__input(
+			data-ref='input'
 			id=data.id
 			name=data.name
 			value=data.value

@@ -1,51 +1,47 @@
 import './styles';
 import template from './template';
-import { FormAuthProps } from './types';
-
-import { formSubmitHandler } from '~common/scripts/utils/formSubmitHandler';
+import { FormAuthProps, FormAuthState } from './types';
 
 import { Component } from '~modules/Component';
-import { ComponentProps } from '~modules/Component/types';
 
 import { Button } from '~components/Button';
 import { FormField } from '~components/FormField';
 
-export class FormAuth extends Component<FormAuthProps> {
-  private fields: FormField[];
-  private buttons: Button[];
+export class FormAuth extends Component<FormAuthProps, FormAuthState> {
+  private readonly fields: FormField[];
 
-  constructor(props: FormAuthProps & ComponentProps) {
+  private readonly buttons: Button[];
+
+  constructor(props: FormAuthProps) {
     super({ template, props });
-    this.buttons = props.buttons.map(button => new Button(button));
-    this.fields = props.fields.map((field) => {
-      return new FormField({
-        ...field,
-        form: this.el,
-        class: 'form-auth__field',
-      });
-    });
-    this.el.addEventListener('submit', this.onSubmit.bind(this));
+    this.buttons = props.buttons.map((button) => new Button(button));
+    this.fields = props.fields.map((field) => new FormField({
+      ...field,
+      class: 'form-auth__field',
+    }));
   }
 
   onSubmit(event) {
-    const errors = [];
-    this.fields.forEach((field) => {
+    const fields = this.fields.filter((field) => {
       field.validate();
-      if (!field.valid && field.props.required) {
-        errors.push(field);
-      }
+      return !field.valid && field.props.required;
     });
-    if (errors.length) {
+    if (fields.length) {
       event.preventDefault();
       return false;
     }
-    return formSubmitHandler(event);
+    return this.props.submit.call(this, event);
   }
 
-  render() {
-    const fieldSet = this.el.querySelector('fieldset');
-    const footer = this.el.querySelector('.form-auth__footer');
-    this.fields.forEach(field => field.mount(fieldSet));
-    this.buttons.forEach(button => button.mount(footer));
+  created() {
+    this.el.addEventListener('submit', this.onSubmit.bind(this));
+    this.el.addEventListener('change', () => {
+      this.fields.forEach((field) => field.validate());
+    });
+  }
+
+  mounted() {
+    this.fields.forEach((field) => field.mount(this.refs.fieldset));
+    this.buttons.forEach((button) => button.mount(this.refs.footer));
   }
 }

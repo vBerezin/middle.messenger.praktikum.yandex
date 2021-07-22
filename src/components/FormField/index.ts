@@ -3,58 +3,40 @@ import template from './template';
 import { FormFieldProps, FormFieldState } from './types';
 
 import { Component } from '~modules/Component';
-import { ComponentProps } from '~modules/Component/types';
 
 export class FormField extends Component<FormFieldProps, FormFieldState> {
-  #value;
-  form?: HTMLFormElement;
-  readonly validate;
+  input: HTMLInputElement;
 
-  constructor(props: FormFieldProps & ComponentProps) {
+  value: string;
+
+  constructor(props: FormFieldProps) {
     super({
       template,
       props,
-      state: {
-        value: props.value || '',
-      },
     });
-    this.form = props.form;
-    this.validate = function () {
-      const errors = this.props.validate ? this.props.validate.call(this, this.value) : null;
-      this.setState({ errors });
-      return errors;
-    }
   }
 
   get valid() {
-    const { errors } = this.state;
-    return errors?.length === 0;
+    return !this.state.errors;
   }
 
-  set value(value: string) {
-    this.#value = value;
-    this.setState({ value });
+  validate() {
+    const { input } = this.refs;
+    const errors = this.props.validate ? this.props.validate.call(this, input.value) : null;
+    this.setState({ errors, value: input.value });
   }
 
-  get value() {
-    return this.state.value;
-  }
-
-  render() {
-    const input = this.el.querySelector('input');
-    if (!input || this.state.readonly || this.state.disabled) {
+  created() {
+    const { input } = this.refs;
+    if (this.state.readonly || this.state.disabled) {
       return false;
     }
     input.addEventListener('focus', () => {
       this.el.classList.add('is-focus');
     });
     input.addEventListener('blur', () => {
-      this.validate();
       this.el.classList.remove('is-focus');
     });
-    input.addEventListener('change', () => {
-      const { value } = input;
-      this.value = value;
-    });
+    input.addEventListener('change', () => this.validate());
   }
 }

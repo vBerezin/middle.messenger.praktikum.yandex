@@ -1,22 +1,27 @@
 .dialog
-	if (data.chat && data.messages)
-		if (data.chat)
-			.dialog__head
-				.dialog__user
-					.dialog__user-image
-						img(src=data.chat.image alt=data.chat.title)
-					.dialog__user-title #{data.chat.title}
-				button.dialog__user-actions
-					img(src="/images/icons/actions.svg")
-		if (data.messages)
-			.dialog__body
-				.dialog__messages
-			.dialog__footer
-				button.dialog__attach
-					img(src="/images/icons/attach.svg")
-				form(method="POST" action="?send" autocomplete="off").dialog__form
-					input(type="text" name="message" placeholder="Сообщение").dialog__form-input
-					button(type="submit" title="Отправить").dialog__form-submit
-						img(src="/images/icons/message-send.svg")
+	if (!data.chat)
+		.dialog__empty
+			h3.dialog__empty-title Чат удален
 	else
-		h3.dialog__title-empty Выберите чат чтобы отправить сообщение
+		.dialog__head
+			.dialog__user
+				.dialog__user-image
+					if (data.chat.image)
+						img(src=`https://ya-praktikum.tech/api/v2/resources${data.chat.image}`)
+				.dialog__user-title #{data.chat.title}
+			button.dialog__actions(data-click="click:actions")
+				include ../../../../static/images/icons/actions.svg
+			.dialog__actions-menu
+				button.dialog__action(data-click="click:users") Пользователи
+				if (data.user.id === data.chat.created_by)
+					button.dialog__action(data-click="click:avatar") Изменить аватар
+					button.dialog__action(data-click="click:delete") Удалить чат
+		.dialog__body
+			.dialog__messages(data-ref="messages")
+		.dialog__footer
+			button.dialog__attach
+				include ../../../../static/images/icons/attach.svg
+			form(method="POST" action="?send" autocomplete="off").dialog__form
+				input(type="text" name="message" placeholder="Сообщение" data-ref="input").dialog__form-input
+				button(type="submit" title="Отправить").dialog__form-submit
+					img(src="/images/icons/message-send.svg")

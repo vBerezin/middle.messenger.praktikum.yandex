@@ -14,8 +14,8 @@
     justify-content: flex-start;
     border-bottom: 1px solid #eaeaea;
     padding: 10px 0;
+    position: relative;
   }
-
   &__footer {
     display: flex;
     align-items: center;
@@ -23,7 +23,6 @@
     padding: 10px 0;
     border-top: 1px solid #eaeaea;
   }
-
   &__body {
     display: flex;
     align-items: stretch;
@@ -33,20 +32,11 @@
     overflow-scrolling: touch;
     -webkit-overflow-scrolling: touch;
   }
-
-  &__title-empty {
-    color: #999;
-    text-align: center;
-    align-self: center;
-    margin: auto;
-  }
-
   &__user {
     display: flex;
     align-items: center;
     flex: 1 0 auto;
   }
-
   &__user-image {
     display: block;
     font-size: 0;
@@ -70,51 +60,78 @@
       object-fit: cover;
     }
   }
-
   &__user-title {
     font-size: 13px;
     line-height: 15px;
     font-weight: $font-weight-medium;
     color: #1e1e1e;
   }
-
-  &__user-actions {
+  &__actions {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 auto;
     width: 25px;
     height: 25px;
-    background: #f5f5f5;
     border-radius: 50%;
     cursor: pointer;
     border: none;
     padding: 0;
     font-size: 0;
+    color: #000;
+    background: #fff;
 
-    img {
-      max-height: 15px;
+    svg {
+      fill: currentColor;
+    }
+    &:hover {
+      color: #3369F3;
     }
   }
+  &__action {
+    display: block;
+    text-align: left;
+    padding: 5px 10px;
+    background: none;
+    border: none;
+    color: #1e1e1e;
+    white-space: nowrap;
 
+    &:hover {
+      color: #3369F3;
+    }
+  }
+  &__actions-menu {
+    display: none;
+    position: absolute;
+    background: #fff;
+    right: 0;
+    top: 100%;
+    margin-top: 10px;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.14);
+
+    ul,
+    li {
+      display: block;
+      padding: 0;
+      margin: 0;
+    }
+  }
   &__message,
   &__reply {
     margin-top: 10px;
     clear: both;
   }
-
   &__message {
     float: left;
   }
-
   &__reply {
     float: right;
   }
-
   &__messages {
     padding: 30px 0;
   }
-
   &__messages-date {
     text-align: center;
     color: #999;
@@ -122,7 +139,6 @@
     font-weight: $font-weight-medium;
     margin-bottom: 30px;
   }
-
   &__attach {
     display: flex;
     align-items: center;
@@ -134,21 +150,24 @@
     cursor: pointer;
     border: none;
     padding: 0;
-    font-size: 0;
+    font-size: 30px;
     margin-right: 10px;
+    color: #999;
 
-    img {
-      max-height: 25px;
+    svg {
+      height: 1em;
+      fill: currentColor;
+    }
+    &:hover {
+      color: #3369F3;
     }
   }
-
   &__form {
     display: flex;
     align-items: center;
     justify-content: flex-start;
     flex: 1 1 auto;
   }
-
   &__form-input {
     flex: 0 1 100%;
     width: 100%;
@@ -162,12 +181,10 @@
     line-height: 20px;
     color: #1e1e1e;
     font-weight: $font-weight-medium;
-
     @include placeholder() {
       color: #999;
     }
   }
-
   &__form-submit {
     display: flex;
     align-items: center;
@@ -185,6 +202,21 @@
 
     img {
       max-height: 10px;
+    }
+  }
+  &__empty {
+    align-self: center;
+    margin: auto;
+  }
+  &__empty-title {
+    color: #999;
+  }
+  &.--actions-active {
+    .dialog__actions {
+      background: #f5f5f5;
+    }
+    .dialog__actions-menu {
+      display: block;
     }
   }
 }

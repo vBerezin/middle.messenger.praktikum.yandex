@@ -3,6 +3,10 @@
 - `npm start` — запуск проекта на express
 - `npm run dev` — запуск версии для разработчика
 - `npm run build` — сборка
+- `npm run test` — запуск тестов Mocha + Chai
+- `npm run lint-js` — линтер typescript
+- `npm run lint-pug` — запуск Pug шаблонов
+- `npm run lint-styles` — запуск стилей scss
 
 ### Страницы
 - `/#signin` — форма авторизации

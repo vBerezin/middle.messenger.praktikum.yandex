@@ -3,7 +3,11 @@
 		.messenger__aside-head
 			.messenger__user
 				a.messenger__user-link(href=ROUTES.user.profile title="Перейти в профиль") Профиль
-			.messenger__search
+			.messenger__search(data-ref="search")
 		.messenger__aside-body
-			.messenger__list
-	main.messenger__main
+			.messenger__list(data-ref="list")
+	if (data.active)
+		main.messenger__main(data-ref="main")
+	else
+		main.messenger__empty
+			h3.messenger__empty-title Выберите чат чтобы отправить сообщение

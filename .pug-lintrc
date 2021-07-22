@@ -1,0 +1,5 @@
+{
+  "disallowClassAttributeWithStaticValue": true,
+  "requireLowerCaseTags": true,
+  "requireClassLiteralsBeforeAttributes": true
+}

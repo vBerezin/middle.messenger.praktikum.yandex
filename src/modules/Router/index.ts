@@ -1,41 +1,38 @@
+import { RouterEvents } from './types';
+import { Events } from '~modules/Events';
 import { documentReady } from '~common/scripts/utils/documentReady';
-import { EventEmitter } from 'events';
-import { EVENTS } from '~common/scripts/events';
 
-class Instance {
-  on;
-  off;
-  emit;
-  private emitter: EventEmitter;
-  private history: History;
-  private currentRoute: string;
-  private routes: Map<string, Function>;
+class AppRouter extends Events<RouterEvents> {
+  events = RouterEvents;
+
+  currentRoute: string;
+
+  readonly routes: Map<string, Function>;
+
+  private readonly history: History;
+
+  private readonly location: Location;
 
   constructor() {
-    this.emitter = new EventEmitter();
+    super();
+    this.location = window.location;
     this.history = window.history;
     this.routes = new Map();
     this.currentRoute = '';
-    this.on = this.emitter.on;
-    this.off = this.emitter.off;
-    this.emit = this.emitter.emit;
-    documentReady(() => this.start());
-    // window.addEventListener('hashchange', () => this.start());
-    window.onpopstate = () => this.start();
   }
 
-  private start(): this {
-    const { pathname, hash, search } = window.location;
-    const path = `${pathname}${hash}`;
-    const params = new URLSearchParams(search.slice(1));
-    const data = {};
-    params.forEach((key, value) => {
-      data[key] = value;
-    });
-    return this.go(path, data);
+  start() {
+    window.onpopstate = () => this.init();
+    documentReady(() => this.init());
+    this.emit(this.events.start);
   }
 
-  go(route: string, data = {}): this {
+  get url(): string {
+    const { pathname, hash } = this.location;
+    return `${pathname}${hash}`;
+  }
+
+  private init(route: string = this.url, data?, state?) {
     if (this.currentRoute === route) {
       return this;
     }
@@ -43,20 +40,37 @@ class Instance {
     if (onRoute) {
       try {
         this.currentRoute = route;
-        this.history.pushState(data, '', route);
-        return onRoute();
+        if (state) {
+          this.history.pushState(state, '', route);
+        }
+        return onRoute(data);
       } catch (error) {
-        this.emit(EVENTS.router.error, { error });
+        this.emit(RouterEvents.error, { error, route });
+        return this;
       }
     }
-    this.emit(EVENTS.router.error, {
-      error: new Error(`Route "${route}" not found`),
+    this.emit(RouterEvents.error, {
+      route,
+      error: new Error('Not found'),
     });
     return this;
   }
 
-  add(routes: string | string[], onRoute: Function): this {
-    [].concat(routes).forEach((route) => this.routes.set(route, onRoute));
+  go(route: string, data?): this {
+    const state = {
+      prev: this.url,
+      data: data ? JSON.stringify(data) : '',
+    };
+    return this.init(route, data, state);
+  }
+
+  use(routes: string | string[], onRoute: Function): this {
+    [].concat(routes).forEach((route) => {
+      if (this.routes.has(route)) {
+        throw new Error(`Route ${route} already use`);
+      }
+      this.routes.set(route, onRoute);
+    });
     return this;
   }
 
@@ -65,19 +79,22 @@ class Instance {
     return this;
   }
 
-  back(): void {
+  back(): this {
     this.history.back();
+    return this;
   }
 
-  forward(): void {
+  forward(): this {
     this.history.forward();
+    return this;
   }
 
-  catch(callback): void {
-    this.on(EVENTS.router.error, callback);
+  catch(callback): this {
+    this.on(RouterEvents.error, callback);
+    return this;
   }
 }
 
-const Router = new Instance();
+const Router = new AppRouter();
 
 export { Router };

@@ -1,21 +1,35 @@
-if (data.chats)
-	ul.chat-list
-		each item, index in data.chats
-			li.chat-list__item(
-				data-chat-id=item.id
-				class=(item.id === data.active ? 'is-active' : '')
-			)
-				.chat-list__item-inner
-					.chat-list__item-image
-						if (item.image)
-							img(src=item.image alt=item.title)
-					.chat-list__item-body
-						.chat-list__item-title #{item.title}
-						.chat-list__item-message !{item.message}
-					.chat-list__item-footer
-						.chat-list__item-date #{item.date}
-						if (item.count)
-							.chat-list__item-count #{item.count}
-else
-	.chat-list
-		.chat-list__loader Список чатов пуст
+.chat-list
+	if (!data.chats.length && !data.users.length)
+		.chat-list__placeholder Список чатов пуст
+	if (data.chats.length)
+		ul.chat-list__list
+			each chat, index in data.chats
+				- active = chat.id === data.active;
+				li.chat-list__item(
+					data-id=chat.id
+					data-click=(active ? undefined : 'click:chat')
+					class=(active ? 'is-active' : ''))
+					.chat-list__item-inner
+						.chat-list__item-image
+							if (chat.avatar)
+								img(src=`https://ya-praktikum.tech/api/v2/resources${chat.avatar}`)
+						.chat-list__item-body
+							.chat-list__item-title #{chat.title}
+							.chat-list__item-message !{chat.message}
+						.chat-list__item-footer
+							.chat-list__item-date #{chat.date}
+							if (chat.count)
+								.chat-list__item-count #{chat.count}
+	if (data.users.length)
+		.chat-list__header Найденые пользователи
+		ul.chat-list__list
+			each user in data.users
+				li.chat-list__item(
+					data-id=user.id
+					data-click="click:user")
+					.chat-list__item-inner
+						.chat-list__item-image
+							if (user.avatar)
+								img(src=`https://ya-praktikum.tech/api/v2/resources${user.avatar}`)
+						.chat-list__item-body
+							.chat-list__item-title #{user['display_name'] || user.login}

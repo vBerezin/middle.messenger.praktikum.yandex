@@ -1,3 +1,6 @@
-include mixin
+include ../../../common/templates/functions/mods
 
-+Message(data)
+.message(
+	class=data.class
+	class=mods('message', data.mods)
+)&attributes(data.attributes) #{data.text}
